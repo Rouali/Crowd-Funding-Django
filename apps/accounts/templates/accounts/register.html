@@ -4,33 +4,122 @@
 {% block title %}Register{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-  <div class="row justify-content-center">
-    <div class="col-md-6">
-      <div class="card shadow-sm p-4">
-        <h2 class="mb-4 text-center">Create an Account</h2>
-        <form method="POST" novalidate>
-          {% csrf_token %}
-          
-          {% for field in form %}
-            <div class="mb-3">
-              <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
-              {{ field|add_class:"form-control" }}
-              
-              {% if field.help_text %}
-                <div class="form-text text-muted">{{ field.help_text }}</div>
-              {% endif %}
-              
-              {% for error in field.errors %}
-                <div class="text-danger">{{ error }}</div>
-              {% endfor %}
+<div class="register-container" style="background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%); min-height: 100vh; display: flex; align-items: center;">
+  <div class="container py-5">
+    <div class="row justify-content-center">
+      <div class="col-md-10 col-lg-8 col-xl-6">
+        <div class="card border-0 shadow-lg" style="border-radius: 16px; overflow: hidden; border: none;">
+          <!-- Header with gradient -->
+          <div class="card-header py-4 text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <div class="text-center">
+              <h2 class="mb-1 fw-bold" style="letter-spacing: 0.5px;">Join Our Community</h2>
+              <p class="mb-0 opacity-90" style="font-size: 0.95rem;">Create your account in seconds</p>
             </div>
-          {% endfor %}
+          </div>
           
-          <button type="submit" class="btn btn-primary w-100 mt-3">Register</button>
-        </form>
+          <!-- Form body -->
+          <div class="card-body p-4 p-md-5" style="background-color: #ffffff;">
+            <form method="POST" novalidate>
+              {% csrf_token %}
+              
+              {% for field in form %}
+                <div class="mb-4">
+                  <label for="{{ field.id_for_label }}" class="form-label fw-medium" style="color: #4a5568;">
+                    {{ field.label }}
+                  </label>
+                  
+                  {% if field.name == 'password1' or field.name == 'password2' %}
+                    <div class="input-group">
+                      {{ field|add_class:"form-control form-control-lg" }}
+                      <button class="btn btn-outline-secondary password-toggle" type="button" style="border-color: #e2e8f0; background-color: #f8fafc;">
+                        <i class="bi bi-eye-fill" style="color: #718096;"></i>
+                      </button>
+                    </div>
+                  {% else %}
+                    {{ field|add_class:"form-control form-control-lg" }}
+                  {% endif %}
+                  
+                  {% if field.help_text %}
+                    <div class="form-text mt-1" style="color: #a0aec0; font-size: 0.85rem;">{{ field.help_text }}</div>
+                  {% endif %}
+                  
+                  {% for error in field.errors %}
+                    <div class="invalid-feedback d-block" style="color: #e53e3e; font-size: 0.85rem;">{{ error }}</div>
+                  {% endfor %}
+                </div>
+              {% endfor %}
+              
+              <div class="d-grid mt-4">
+                <button type="submit" class="btn btn-lg py-3 fw-bold" 
+                        style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                               border: none;
+                               letter-spacing: 0.5px;
+                               box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                               transition: all 0.3s ease;">
+                  <i class="bi bi-person-plus-fill me-2"></i>Register Now
+                </button>
+              </div>
+            </form>
+            
+            <div class="text-center mt-4 pt-3" style="border-top: 1px solid #edf2f7;">
+              <p class="mb-0" style="color: #718096;">Already have an account? 
+                <a href="{% url 'login' %}" class="text-decoration-none fw-semibold" style="color: #667eea;">Sign In</a>
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </div>
+
+<style>
+  .form-control-lg {
+    padding: 0.75rem 1.25rem;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    transition: all 0.3s ease;
+  }
+  
+  .form-control-lg:focus {
+    border-color: #a3bffa;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+  }
+  
+  .password-toggle:hover {
+    background-color: #edf2f7 !important;
+  }
+  
+  .card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+  }
+  
+  .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2) !important;
+  }
+</style>
+
+<script>
+  // Password toggle functionality
+  document.querySelectorAll('.password-toggle').forEach(button => {
+    button.addEventListener('click', function() {
+      const input = this.closest('.input-group').querySelector('input');
+      const icon = this.querySelector('i');
+      
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.replace('bi-eye-fill', 'bi-eye-slash-fill');
+      } else {
+        input.type = 'password';
+        icon.classList.replace('bi-eye-slash-fill', 'bi-eye-fill');
+      }
+    });
+  });
+</script>
 {% endblock %}

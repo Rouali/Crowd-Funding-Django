@@ -44,7 +44,7 @@ INSTALLED_APPS = [
     'tailwind',
 ]
 AUTH_USER_MODEL = 'accounts.User'
-SITE_ID = 1
+SITE_ID = 2
 
 # Use this for local testing
 DOMAIN = '127.0.0.1:8000'
