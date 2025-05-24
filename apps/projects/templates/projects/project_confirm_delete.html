@@ -1,0 +1,73 @@
+{% extends 'base.html' %} {% block content %}
+<div
+  class="delete-confirm-container"
+  style="
+    background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+    min-height: 100vh;
+    padding: 2rem 0;
+  "
+>
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div
+          class="card border-0 shadow-lg"
+          style="border-radius: 16px; overflow: hidden"
+        >
+          <div
+            class="card-header py-4 text-white"
+            style="
+              background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+            "
+          >
+            <h2 class="mb-0 fw-bold text-center" style="letter-spacing: 0.5px">
+              Delete Project
+            </h2>
+          </div>
+
+          <div class="card-body p-4 p-md-5" style="background-color: #ffffff">
+            <div class="text-center mb-5">
+              <p class="lead text-gray-700">
+                Are you sure you want to permanently delete<br />"{{
+                project.title }}"?
+              </p>
+            </div>
+
+            <form method="post">
+              {% csrf_token %}
+              <div class="d-flex justify-content-center gap-4">
+                <button
+                  type="submit"
+                  class="btn py-2 px-5 fw-bold"
+                  style="
+                    background: linear-gradient(
+                      135deg,
+                      #e53e3e 0%,
+                      #c53030 100%
+                    );
+                    color: white;
+                    border-radius: 8px;
+                  "
+                >
+                  Confirm Delete
+                </button>
+                <a
+                  href="{% url 'projects:project_detail' project.id %}"
+                  class="btn py-2 px-5"
+                  style="
+                    background: #e2e8f0;
+                    color: #4a5568;
+                    border-radius: 8px;
+                  "
+                >
+                  Cancel
+                </a>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

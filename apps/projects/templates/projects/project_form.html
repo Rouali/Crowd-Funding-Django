@@ -1,0 +1,238 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="create-project-container" style="background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%); min-height: 100vh; padding: 2rem 0;">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-10">
+        <div class="card border-0 shadow-lg" style="border-radius: 16px; overflow: hidden;">
+          <!-- Header -->
+          <div class="card-header py-4 text-white text-center" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <h2 class="mb-0 fw-bold" style="letter-spacing: 0.5px;">
+              {% if project %}Edit Project{% else %}Create New Project{% endif %}
+            </h2>
+          </div>
+
+          <!-- Form -->
+          <div class="card-body p-4 p-md-5 bg-white">
+            <form method="post" enctype="multipart/form-data">
+              {% csrf_token %}
+
+              {% if form.non_field_errors or formset.non_form_errors %}
+              <div class="alert alert-danger mb-4">
+                {% for err in form.non_field_errors %}<div>{{ err }}</div>{% endfor %}
+                {% for err in formset.non_form_errors %}<div>{{ err }}</div>{% endfor %}
+              </div>
+              {% endif %}
+
+              <!-- Project Fields -->
+              <div class="mb-4">
+                <label class="form-label fw-medium text-secondary mb-1">Project Title</label>
+                {% render_field form.title class="form-control form-control-lg" %}
+                {% if form.title.errors %}<div class="text-danger small mt-1">{{ form.title.errors.0 }}</div>{% endif %}
+              </div>
+
+              <div class="mb-4">
+                <label class="form-label fw-medium text-secondary mb-1">Project Story</label>
+                {% render_field form.details class="form-control form-control-lg" rows="4" %}
+                {% if form.details.errors %}<div class="text-danger small mt-1">{{ form.details.errors.0 }}</div>{% endif %}
+              </div>
+
+              <div class="row g-4 mb-4">
+                <div class="col-md-6">
+                  <label class="form-label fw-medium text-secondary mb-1">Category</label>
+                  {% render_field form.category class="form-select form-control-lg" %}
+                  {% if form.category.errors %}<div class="text-danger small mt-1">{{ form.category.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-medium text-secondary mb-1">Funding Goal (EGP)</label>
+                  {% render_field form.total_target class="form-control form-control-lg" %}
+                  {% if form.total_target.errors %}<div class="text-danger small mt-1">{{ form.total_target.errors.0 }}</div>{% endif %}
+                </div>
+              </div>
+
+              <div class="row g-4 mb-4">
+                <div class="col-md-6">
+                  <label class="form-label fw-medium text-secondary mb-1">Start Date</label>
+                  {% render_field form.start_time class="form-control form-control-lg" type="datetime-local" %}
+                  {% if form.start_time.errors %}<div class="text-danger small mt-1">{{ form.start_time.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-medium text-secondary mb-1">End Date</label>
+                  {% render_field form.end_time class="form-control form-control-lg" type="datetime-local" %}
+                  {% if form.end_time.errors %}<div class="text-danger small mt-1">{{ form.end_time.errors.0 }}</div>{% endif %}
+                </div>
+              </div>
+
+              <div class="mb-4">
+                <label class="form-label fw-medium text-secondary mb-1">Tags</label>
+                {% render_field form.tags class="form-control form-control-lg" placeholder="education, technology, healthcare" %}
+                <small class="form-text text-muted">Separate tags with commas</small>
+                {% if form.tags.errors %}<div class="text-danger small mt-1">{{ form.tags.errors.0 }}</div>{% endif %}
+              </div>
+
+              <!-- Images -->
+              <div class="mb-4">
+                <label class="form-label fw-medium text-secondary mb-1">Project Images</label>
+                <div class="border border-dashed p-4 rounded-lg" style="border-color: #e2e8f0;">
+                  {{ formset.management_form }}
+                  <div class="row g-3" id="image-forms">
+                    {% for imgform in formset %}
+                    <div class="col-md-4 image-form">
+                      <div class="card h-100">
+                        <div class="card-body text-center">
+                          {% if imgform.instance.image %}
+                          <img src="{{ imgform.instance.image.url }}" class="img-fluid mb-2 rounded" style="max-height: 150px;">
+                          {% endif %}
+                          {% render_field imgform.image class="form-control mb-2" %}
+                          {% if imgform.instance.pk %}
+                          <label class="text-danger small d-block">
+                            {% render_field imgform.DELETE %} Delete this image
+                          </label>
+                          {% endif %}
+                          {% for hidden in imgform.hidden_fields %}{{ hidden }}{% endfor %}
+                        </div>
+                      </div>
+                    </div>
+                    {% endfor %}
+                  </div>
+                  <button type="button" onclick="addImageForm()" class="btn btn-sm mt-3 text-white" style="background: #667eea;">
+                    + Add Another Image
+                  </button>
+                </div>
+              </div>
+
+              <!-- Buttons -->
+              <div class="d-flex gap-3 mt-5">
+                {% if project %}
+                <button type="button" class="btn btn-lg flex-fill text-white" data-bs-toggle="modal" data-bs-target="#cancelModal" style="background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);">
+                  Cancel Project
+                </button>
+                {% else %}
+                <button type="button" class="btn btn-lg flex-fill text-white" data-bs-toggle="modal" data-bs-target="#cancelCreationModal" style="background: linear-gradient(135deg, #718096 0%, #4a5568 100%);">
+                  Cancel Creation
+                </button>
+                {% endif %}
+                <button type="submit" class="btn btn-lg flex-fill text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; letter-spacing: 0.5px;">
+                  {% if project %}Update Project{% else %}Create Project{% endif %}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modals -->
+{% if project %}
+<div class="modal fade" id="cancelModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+        <h5 class="modal-title">Confirm Project Cancellation</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="POST" action="{% url 'projects:project_cancel' project.id %}">
+        {% csrf_token %}
+        <div class="modal-body">
+          Are you sure you want to cancel this project? This action cannot be undone.
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-danger">Confirm Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% else %}
+<div class="modal fade" id="cancelCreationModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+        <h5 class="modal-title">Confirm Creation Cancellation</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to cancel project creation? All unsaved changes will be lost.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Continue</button>
+        <a href="{% url 'projects:project_list' %}" class="btn btn-danger">Confirm Cancel</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<style>
+  .form-control-lg {
+    padding: 0.75rem 1.25rem;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    transition: all 0.3s ease;
+  }
+  .form-control-lg:focus {
+    border-color: #a3bffa;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+  }
+  .card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  }
+  .img-preview {
+    max-width: 100%;
+    height: 150px;
+    object-fit: cover;
+  }
+  .image-form .card {
+    transition: transform 0.2s;
+  }
+  .image-form .card:hover {
+    transform: translateY(-5px);
+  }
+</style>
+
+<script>
+  function addImageForm() {
+    const totalForms = document.getElementById("id_images-TOTAL_FORMS");
+    const formIdx = parseInt(totalForms.value, 10);
+
+    const newForm = document.createElement("div");
+    newForm.classList.add("col-md-4", "image-form");
+    newForm.innerHTML = `
+      <div class="card h-100">
+        <div class="card-body text-center">
+          <input type="file" name="images-${formIdx}-image" id="id_images-${formIdx}-image" class="form-control mb-2" accept="image/*">
+          <input type="hidden" name="images-${formIdx}-id" id="id_images-${formIdx}-id">
+          <input type="hidden" name="images-${formIdx}-DELETE" id="id_images-${formIdx}-DELETE">
+        </div>
+      </div>`;
+
+    document.getElementById("image-forms").appendChild(newForm);
+    totalForms.value = formIdx + 1;
+  }
+
+  document.getElementById("image-forms").addEventListener("change", function(e) {
+    if (e.target.type === "file") {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(ev) {
+        let img = e.target.closest(".card-body").querySelector("img");
+        if (!img) {
+          img = document.createElement("img");
+          img.className = "img-fluid mb-2 rounded img-preview";
+          e.target.before(img);
+        }
+        img.src = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+</script>
+</div>
+{% endblock %}

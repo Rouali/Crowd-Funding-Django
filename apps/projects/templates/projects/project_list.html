@@ -1,0 +1,56 @@
+{% extends 'base.html' %} {% block content %}
+<div
+  class="project-list-container"
+  style="
+    background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+    min-height: 100vh;
+    padding: 2rem 0;
+  "
+>
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-10">
+        <div
+          class="card border-0 shadow-lg"
+          style="border-radius: 16px; overflow: hidden"
+        >
+          <div
+            class="card-header py-4 text-white"
+            style="
+              background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            "
+          >
+            <h2 class="mb-0 fw-bold text-center" style="letter-spacing: 0.5px">
+              All Projects
+            </h2>
+          </div>
+
+          <div class="card-body p-4 p-md-5" style="background-color: #ffffff">
+            <div class="space-y-4">
+              {% for project in projects %}
+              <div
+                class="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow"
+                style="border: 1px solid #e2e8f0"
+              >
+                <h3 class="text-xl font-semibold mb-2">
+                  <a
+                    href="{% url 'projects:project_detail' project.id %}"
+                    class="text-decoration-none"
+                    style="color: #667eea; hover-color: #764ba2"
+                  >
+                    {{ project.title }}
+                  </a>
+                </h3>
+                <p class="text-gray-600 mb-0">
+                  {{ project.details|truncatewords:20 }}
+                </p>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
