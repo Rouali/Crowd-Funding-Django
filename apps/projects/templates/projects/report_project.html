@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow p-4">
+        <h2 class="mb-4 text-center">Report Project: {{ project.title }}</h2>
+        <form method="POST">
+            {% csrf_token %}
+            <div class="form-group mb-3">
+                <label for="reason" class="form-label">Reason for reporting:</label>
+                <textarea id="reason" name="reason" rows="5" class="form-control" required></textarea>
+            </div>
+            <div class="text-center">
+                <button type="submit" class="btn btn-secondary px-4">Submit Report</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+

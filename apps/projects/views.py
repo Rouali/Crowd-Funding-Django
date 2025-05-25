@@ -5,6 +5,7 @@ from .forms import ProjectForm, ProjectImageFormSet
 from django.utils.text import slugify
 from django.contrib import messages
 from apps.comments.models import Comment
+from .models import ProjectReport
 @login_required
 def project_create(request):
     if request.method == 'POST':
@@ -145,3 +146,21 @@ def project_detail(request, project_id):
 def project_list(request):
     projects = Project.objects.all()
     return render(request, 'projects/project_list.html', {'projects': projects})
+@login_required
+def report_project(request, project_id):
+    project = get_object_or_404(Project, id=project_id)
+
+    if request.method == 'POST':
+        reason = request.POST.get('reason')
+        if reason:
+            ProjectReport.objects.create(
+                reporter=request.user,
+                project=project,
+                reason=reason
+            )
+            messages.success(request, "Your report has been submitted.")
+        else:
+            messages.error(request, "Please provide a reason for reporting.")
+        return redirect('projects:project_detail', project.id)
+
+    return render(request, 'projects/report_project.html', {'project': project})
