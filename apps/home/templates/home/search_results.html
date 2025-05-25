@@ -90,7 +90,7 @@
       {% for project in projects %}
         <div class="col-md-4 mb-4">
           <div class="card h-100 shadow-sm">
-          {% with project.projectimage_set.all.first as first_image %}
+          {% with project.images.all.first as first_image %}
             {% if first_image %}
               <img src="{{ first_image.image.url }}" class="card-img-top" alt="{{ project.title }}">
             {% endif %}

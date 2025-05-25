@@ -94,7 +94,7 @@
   <div class="carousel-inner">
   {% for project in top_rated %}
     <div class="carousel-item {% if forloop.first %}active{% endif %}">
-      {% with project.projectimage_set.all.first as first_image %}
+      {% with project.images.all.first as first_image %}
         {% if first_image %}
           <img src="{{ first_image.image.url }}" class="d-block w-100" alt="{{ project.title }}">
         {% endif %}
@@ -133,7 +133,7 @@
     {% for project in latest %}
       <div class="col-md-4">
         <div class="card mb-4 shadow-sm">
-          {% with project.projectimage_set.all.first as first_image %}
+          {% with project.images.all.first as first_image %}
             {% if first_image %}
               <img src="{{ first_image.image.url }}" class="card-img-top" alt="{{ project.title }}">
             {% endif %}
@@ -164,7 +164,7 @@
     {% for project in featured %}
       <div class="col-md-4">
         <div class="card mb-4 shadow-sm">
-          {% with project.projectimage_set.all.first as first_image %}
+          {% with project.images.all.first as first_image %}
             {% if first_image %}
               <img src="{{ first_image.image.url }}" class="card-img-top" alt="{{ project.title }}">
             {% endif %}
