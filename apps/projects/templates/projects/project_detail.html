@@ -28,6 +28,7 @@
 </nav>
 
 <div class="project-detail-container" style="background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%); min-height: 100vh; padding: 2rem 0;">
+  
   <div class="container">
     <div class="row justify-content-center">
       <div class="col-lg-10">
@@ -40,6 +41,27 @@
           </div>
           
           <div class="card-body p-4 p-md-5" style="background-color: #ffffff;">
+             <!-- Project Image Slider -->
+            {% if project.images.all %}
+            <div id="projectImagesCarousel" class="carousel slide mb-5" data-bs-ride="carousel">
+              <div class="carousel-inner rounded shadow-sm">
+                {% for img in project.images.all %}
+                <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                  <img src="{{ img.image.url }}" class="d-block w-100" alt="Project Image" style="max-height: 500px; object-fit: cover;">
+                </div>
+                {% endfor %}
+              </div>
+              <button class="carousel-control-prev" type="button" data-bs-target="#projectImagesCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+              </button>
+              <button class="carousel-control-next" type="button" data-bs-target="#projectImagesCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+              </button>
+            </div>
+            {% endif %}
+            
             <!-- Funding Progress Section -->
             <div class="funding-progress mb-5">
               <h4 class="fw-medium mb-3">Funding Progress</h4>

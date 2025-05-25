@@ -76,7 +76,7 @@ class Donation(models.Model):
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     
 class ProjectImage(models.Model):
-    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE ,related_name="images")
     image = models.ImageField(upload_to='projects/images/')
 
     def __str__(self):
