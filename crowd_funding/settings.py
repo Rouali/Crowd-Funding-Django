@@ -35,7 +35,8 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'apps.accounts',
     'rest_framework',
-    'apps.projects.apps.ProjectsConfig',
+    'apps.projects.apps.ProjectsConfig', 
+    'apps.comments',
     'django.contrib.sites',
     'django.contrib.admin',
     'django.contrib.auth',
