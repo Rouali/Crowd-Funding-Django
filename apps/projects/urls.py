@@ -13,16 +13,8 @@ urlpatterns = [
     path('<int:project_id>/cancel/', views.project_cancel, name='project_cancel'),
     path('<int:project_id>/', views.project_detail, name='project_detail'),
     path('category/<int:category_id>/', views.projects_by_category, name='projects_by_category'),
-<<<<<<< HEAD
-
-=======
->>>>>>> 7148f215ddcf82da65ff8a095754a9ae79f5aea4
 ]
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-<<<<<<< HEAD
-=======
-   
->>>>>>> 7148f215ddcf82da65ff8a095754a9ae79f5aea4
 
