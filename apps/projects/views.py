@@ -1,10 +1,14 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from .models import Project, Tag, ProjectImage
+from .models import Project, Tag, ProjectImage ,Category
 from .forms import ProjectForm, ProjectImageFormSet
 from django.utils.text import slugify
 from django.contrib import messages
 from apps.comments.models import Comment
+
+from django.shortcuts import render, get_object_or_404
+
+
 from .models import ProjectReport
 @login_required
 def project_create(request):
@@ -115,12 +119,10 @@ def project_detail(request, project_id):
         return redirect('projects:project_detail', project.id)
 
     # ✅ تبليغ عن تعليق (GET)
-    if 'report_id' in request.GET:
-        comment = get_object_or_404(Comment, id=request.GET.get('report_id'))
-        comment.is_reported = True
-        comment.save()
-        return redirect('projects:project_detail', project.id)
-
+    # if 'report_id' in request.GET:
+    #     comment = get_object_or_404(Comment, id=request.GET.get('report_id'))
+    #     comment.is_reported = True
+    #     comment.save()
     # ✅ إضافة تعليق أو رد (POST)
     if request.method == 'POST' and 'content' in request.POST:
         content = request.POST.get('content')
@@ -146,6 +148,17 @@ def project_detail(request, project_id):
 def project_list(request):
     projects = Project.objects.all()
     return render(request, 'projects/project_list.html', {'projects': projects})
+
+
+
+
+def projects_by_category(request, category_id):
+    category = get_object_or_404(Category, id=category_id)
+    projects = Project.objects.filter(category=category)
+    return render(request, 'projects/projects_by_category.html', {
+        'category': category,
+        'projects': projects
+    })
 @login_required
 def report_project(request, project_id):
     project = get_object_or_404(Project, id=project_id)

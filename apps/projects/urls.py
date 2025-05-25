@@ -1,5 +1,7 @@
 from django.urls import path
 from . import views
+from django.conf import settings
+from django.conf.urls.static import static
 
 app_name = 'projects' 
 
@@ -11,4 +13,8 @@ urlpatterns = [
     path('<int:project_id>/cancel/', views.project_cancel, name='project_cancel'),
     path('<int:project_id>/', views.project_detail, name='project_detail'),
     path('<int:project_id>/report/', views.report_project, name='report_project'),
+    path('category/<int:category_id>/', views.projects_by_category, name='projects_by_category'),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

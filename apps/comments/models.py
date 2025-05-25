@@ -12,6 +12,12 @@ class Comment(models.Model):
 
     def __str__(self):
         return f"{self.user.username}: {self.content[:30]}"
+class CommentReport(models.Model):
+    comment = models.ForeignKey('Comment', on_delete=models.CASCADE, related_name='reports')
+    reporter = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    reason = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
 
-
+    def __str__(self):
+        return f'Report by {self.reporter} on comment {self.comment.id}'
 # Create your models here.
