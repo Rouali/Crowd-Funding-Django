@@ -2,7 +2,9 @@
 {% block title %}My Profile{% endblock %}
 
 {% block content %}
-<div class="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 flex items-center py-8">
+<div class="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 flex items-center py-8"
+     x-data="{ showModal: false }"  <!-- Alpine.js root -->
+>
   <div class="container mx-auto px-4">
     <div class="max-w-3xl mx-auto bg-white shadow-lg rounded-2xl overflow-hidden">
 
@@ -37,10 +39,15 @@
         </div>
 
         <!-- Actions -->
-        <div class="flex justify-end">
+        <div class="flex space-x-3">
           <a href="{% url 'profile_edit' %}"
              class="px-5 py-2 bg-indigo-500 text-white rounded-lg shadow hover:bg-indigo-600 transition">
             Edit Profile
+          </a>
+
+          <a href="{% url 'delete_account' %}"
+             class="px-5 py-2 bg-red-500 text-white rounded-lg shadow hover:bg-red-600 transition">
+            Delete Profile
           </a>
         </div>
 
@@ -77,5 +84,9 @@
       </div>
     </div>
   </div>
+
+
 </div>
+
+<!-- <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script> -->
 {% endblock %}

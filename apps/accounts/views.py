@@ -14,6 +14,7 @@ from django.contrib.auth import get_user_model
 from django.views.decorators.csrf import csrf_protect
 from django.conf import settings
 from django.urls import reverse
+from django.contrib.auth import authenticate
 
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
@@ -86,15 +87,25 @@ def logout_view(request):
 
 
 def delete_account(request):
-    if request.user.is_authenticated:
-        if request.method == 'POST':
-            request.user.delete()
-            messages.success(request, "Your account has been deleted.")
-            return redirect('register')
-        return render(request, 'accounts/delete_account.html')
-    else:
+    if not request.user.is_authenticated:
         messages.error(request, "You must be logged in to delete your account.")
         return redirect('login')
+
+    error_message = None
+    if request.method == 'POST':
+        password = request.POST.get('password')
+        user = authenticate(username=request.user.username, password=password)
+        try:
+            if user:
+                request.user.delete()
+                messages.success(request, "Your account has been deleted.")
+                return redirect('register')
+            else:
+                error_message = 'Incorrect password. Please try again.'
+        except Exception as e:
+            error_message = f"An error occurred: {str(e)}\n{traceback.format_exc()}"
+
+    return render(request, 'accounts/delete_account.html', {'error': error_message})
 
 
 def send_activation_email(user, uid, token):

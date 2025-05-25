@@ -1,7 +1,34 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg text-white fixed-top" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+  <div class="container">
+    <a class="navbar-brand text-white" href="#"><img src="/media/projects/images/logo.png" style="width: 120px;" /></a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse justify-content-between" id="navbarNav">
+      <ul class="navbar-nav">
+        <li class="nav-item"><a class="nav-link text-white" href="/">Home</a></li>
+        <li class="nav-item"><a class="nav-link text-white" href="#latest">Latest</a></li>
+        <li class="nav-item"><a class="nav-link text-white" href="#featured">Featured</a></li>
+        <li class="nav-item"><a class="nav-link text-white" href="#categories">Categories</a></li>
+      </ul>
+
+      <!-- Search Form -->
+      <form method="GET" action="{% url 'search_projects' %}" class="d-flex" role="search">
+        <input class="form-control me-2" type="search" name="query" placeholder="Search" aria-label="Search" value="{{ query }}">
+        <button class="btn" type="submit" style="background-color: white; border: 2px solid #764ba2; color: #764ba2; letter-spacing: 0.5px;">Search</button>
+      </form>
+
+    </div>
+  </div>
+</nav>
+
 <div class="project-detail-container" style="background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%); min-height: 100vh; padding: 2rem 0;">
+  
   <div class="container">
     <div class="row justify-content-center">
       <div class="col-lg-10">
@@ -14,6 +41,27 @@
           </div>
           
           <div class="card-body p-4 p-md-5" style="background-color: #ffffff;">
+             <!-- Project Image Slider -->
+            {% if project.images.all %}
+            <div id="projectImagesCarousel" class="carousel slide mb-5" data-bs-ride="carousel">
+              <div class="carousel-inner rounded shadow-sm">
+                {% for img in project.images.all %}
+                <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                  <img src="{{ img.image.url }}" class="d-block w-100" alt="Project Image" style="max-height: 500px; object-fit: cover;">
+                </div>
+                {% endfor %}
+              </div>
+              <button class="carousel-control-prev" type="button" data-bs-target="#projectImagesCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+              </button>
+              <button class="carousel-control-next" type="button" data-bs-target="#projectImagesCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+              </button>
+            </div>
+            {% endif %}
+            
             <!-- Funding Progress Section -->
             <div class="funding-progress mb-5">
               <h4 class="fw-medium mb-3">Funding Progress</h4>
@@ -47,7 +95,7 @@
               <p class="text-gray-600">{{ project.details }}</p>
             </div>
 
-            <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex justify-content-between align-items-center mb-4">
               <a href="{% url 'projects:project_list' %}" 
                  class="btn py-2 px-4 fw-medium"
                  style="background: #e2e8f0; color: #4a5568; border-radius: 8px;">
@@ -78,6 +126,80 @@
                 {% endif %}
               </div>
             </div>
+
+            <!-- Comments Section -->
+            <div class="comments-section mt-5">
+              <h4 class="fw-semibold mb-3">Comments</h4>
+
+              <!-- Add new comment -->
+              <form method="post" action="{% url 'projects:project_detail' project.id %}">
+                {% csrf_token %}
+                <div class="mb-3">
+                  <textarea name="content" class="form-control" rows="3" placeholder="Add a comment..." required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary mb-4">Post Comment</button>
+              </form>
+
+              <!-- Comments List -->
+              <ul class="list-unstyled">
+                {% for comment in comments %}
+                <li class="mb-4 p-3 border rounded" style="background: #f9f9f9;">
+                  <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                      <strong>{{ comment.user.username }}</strong> 
+                      <small class="text-muted">{{ comment.created_at|date:"Y-m-d H:i" }}</small>
+                    </div>
+                    <div>
+                      {% if comment.user == request.user %}
+                      <a href="?delete_id={{ comment.id }}" class="text-danger me-3" title="Delete">Delete</a>
+                      {% endif %}
+                      <a href="?report_id={{ comment.id }}" class="text-warning" title="Report">Report</a>
+                    </div>
+                  </div>
+                  <p class="mt-2 mb-2">{{ comment.content }}</p>
+
+                  <!-- Reply link and form -->
+                  <a href="#" onclick="toggleReplyForm({{ comment.id }}); return false;" class="text-primary">Reply</a>
+
+                  <form method="post" action="{% url 'projects:project_detail' project.id %}" id="reply-form-{{ comment.id }}" class="mt-2" style="display:none;">
+                    {% csrf_token %}
+                    <input type="hidden" name="parent_id" value="{{ comment.id }}">
+                    <div class="mb-2">
+                      <textarea name="content" class="form-control" rows="2" placeholder="Write a reply..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-secondary btn-sm">Reply</button>
+                  </form>
+
+                  <!-- Replies -->
+                  {% if comment.replies.all %}
+                  <ul class="list-unstyled mt-3 ms-4">
+                    {% for reply in comment.replies.all %}
+                    <li class="mb-3 p-3 border rounded" style="background: #f1f1f1;">
+                      <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                          <strong>{{ reply.user.username }}</strong> 
+                          <small class="text-muted">{{ reply.created_at|date:"Y-m-d H:i" }}</small>
+                        </div>
+                        <div>
+                          {% if reply.user == request.user %}
+                          <a href="?delete_id={{ reply.id }}" class="text-danger me-3" title="Delete">Delete</a>
+                          {% endif %}
+                          <a href="?report_id={{ reply.id }}" class="text-warning" title="Report">Report</a>
+                        </div>
+                      </div>
+                      <p class="mt-2 mb-0">{{ reply.content }}</p>
+                    </li>
+                    {% endfor %}
+                  </ul>
+                  {% endif %}
+                </li>
+                {% empty %}
+                <li class="text-muted">No comments yet. Be the first to comment!</li>
+                {% endfor %}
+              </ul>
+            </div>
+            <!-- End Comments Section -->
+
           </div>
         </div>
       </div>
@@ -85,7 +207,21 @@
   </div>
 </div>
 
+<script>
+function toggleReplyForm(commentId) {
+  const form = document.getElementById('reply-form-' + commentId);
+  if (form.style.display === 'none' || form.style.display === '') {
+    form.style.display = 'block';
+  } else {
+    form.style.display = 'none';
+  }
+}
+</script>
+
 <style>
+body {
+  padding-top: 56px;
+}
 .progress-bar {
   transition: width 0.5s ease-in-out;
 }
