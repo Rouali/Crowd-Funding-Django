@@ -59,7 +59,7 @@
     
     <div class="collapse navbar-collapse justify-content-between" id="navbarNav">
       <ul class="navbar-nav">
-        <li class="nav-item"><a class="nav-link text-white" href="/">Home</a></li>
+        <li class="nav-item"><a class="nav-link text-white" href="/home/">Home</a></li>
         <li class="nav-item"><a class="nav-link text-white" href="#latest">Latest</a></li>
         <li class="nav-item"><a class="nav-link text-white" href="#featured">Featured</a></li>
         <li class="nav-item"><a class="nav-link text-white" href="#categories">Categories</a></li>
@@ -96,7 +96,7 @@
             <h5 class="card-title">{{ project.title }}</h5>
             <p class="card-text">{{ project.details|truncatechars:100 }}</p>
             <p>Status: {{ project.status }}</p>
-            <a href="#" class="btn  mt-2 w-100 " style=" border: 1px solid #764ba2;">
+            <a href="{% url 'projects:project_detail' project.id %}" class="btn  mt-2 w-100 " style=" border: 1px solid #764ba2;">
                 View
             </a>
           </div>
