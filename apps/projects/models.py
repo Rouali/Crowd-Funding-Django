@@ -14,7 +14,7 @@ class Category(models.Model):
     class Meta:
         verbose_name_plural = "Categories"
     def __str__(self):
-        return self.name
+        return str(self.name)
 
 class Tag(models.Model):
     name = models.CharField(max_length=50, unique=True)
@@ -65,7 +65,7 @@ class Project(models.Model):
         return self.total_donations < 0.25 * self.total_target
 
     def __str__(self):
-        return self.title
+        return str(self.title)
 
 class Donation(models.Model):
     project = models.ForeignKey(

@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% block title %}My Profile{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 flex items-center py-8">
+  <div class="container mx-auto px-4">
+    <div class="max-w-3xl mx-auto bg-white shadow-lg rounded-2xl overflow-hidden">
+
+      <!-- Header -->
+      <div class="bg-gradient-to-r from-indigo-500 to-purple-600 p-6 text-white">
+        <h2 class="text-2xl font-bold">Hello, {{ user.first_name }}!</h2>
+      </div>
+
+      <div class="p-6 space-y-8">
+        <!-- User Info -->
+        <div class="flex flex-col md:flex-row items-center md:space-x-6">
+          {% if user.profile_picture %}
+            <img src="{{ user.profile_picture.url }}" alt="avatar"
+                 class="w-32 h-32 rounded-full mb-4 md:mb-0 object-cover shadow-xl">
+          {% else %}
+            <div class="w-32 h-32 flex items-center justify-center bg-gray-300 rounded-full mb-4 md:mb-0 text-gray-600 text-3xl">
+              <i class="fas fa-user"></i>
+            </div>
+          {% endif %}
+          <div class="text-gray-800 space-y-1">
+            <p><strong>Name:</strong> {{ user.first_name }} {{ user.last_name }}</p>
+            <p><strong>Email:</strong> {{ user.email }}</p>
+            <p><strong>Phone:</strong> {{ user.mobile_phone }}</p>
+            {% if user.birthdate %}<p><strong>Birthdate:</strong> {{ user.birthdate }}</p>{% endif %}
+            {% if user.facebook_profile %}
+              <p><strong>Facebook:</strong>
+                <a href="{{ user.facebook_profile }}" target="_blank" class="text-indigo-600 hover:underline">{{ user.facebook_profile }}</a>
+              </p>
+            {% endif %}
+            {% if user.country %}<p><strong>Country:</strong> {{ user.country }}</p>{% endif %}
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex justify-end">
+          <a href="{% url 'profile_edit' %}"
+             class="px-5 py-2 bg-indigo-500 text-white rounded-lg shadow hover:bg-indigo-600 transition">
+            Edit Profile
+          </a>
+        </div>
+
+        <!-- My Projects -->
+        <div>
+          <h3 class="text-xl font-semibold border-b pb-2 mb-4 text-indigo-700">My Projects</h3>
+          <div class="space-y-4">
+            {% for p in projects %}
+              <div class="p-4 bg-gray-50 rounded-lg shadow-sm hover:shadow-md transition">
+                <a href="{% url 'projects:project_detail' p.id %}"
+                   class="text-indigo-600 font-medium hover:underline">
+                  {{ p.title }}
+                </a>
+              </div>
+            {% empty %}
+              <p class="text-gray-500">No projects yet.</p>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- My Donations -->
+        <div>
+          <h3 class="text-xl font-semibold border-b pb-2 mb-4 text-indigo-700">My Donations</h3>
+          <div class="space-y-4">
+            {% for d in donations %}
+              <div class="p-4 bg-gray-50 rounded-lg shadow-sm">
+                <p>To: <strong>{{ d.project.title }}</strong> — Amount: <strong>{{ d.amount }} EGP</strong></p>
+              </div>
+            {% empty %}
+              <p class="text-gray-500">No donations yet.</p>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

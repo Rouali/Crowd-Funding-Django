@@ -15,6 +15,12 @@ from django.views.decorators.csrf import csrf_protect
 from django.conf import settings
 from django.urls import reverse
 
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse
+from apps.projects.models import Project,Donation
+from .forms import ProfileForm
+
+
 from .forms import RegistrationForm
 from django.contrib.auth.views import PasswordResetView
 from django.contrib.auth.forms import PasswordResetForm
@@ -129,6 +135,39 @@ def send_password_reset_email(user, domain, uid, token):
     email.attach_alternative(html_content, "text/html")
     email.send()
 
+@login_required
+def profile_view(request):
+    user = request.user
+    try:
+        projects = Project.objects.filter(user=user)
+        donations = Donation.objects.filter(project__user=user)
+    except Exception as e:
+        return HttpResponse(f"Error fetching data: {e}")
+
+    return render(request, 'accounts/profile_view.html', {
+        'user': user,
+        'projects': projects,
+        'donations': donations
+    })
+
+
+@login_required
+def profile_edit(request):
+    user = request.user
+    try:
+        if request.method == 'POST':
+            form = ProfileForm(request.POST, request.FILES, instance=user)
+            if form.is_valid():
+                form.save()
+                return redirect('profile_view')
+        else:
+            form = ProfileForm(instance=user)
+    except Exception as e:
+        return HttpResponse(f"Error loading edit form: {e}")
+
+    return render(request, 'accounts/profile_edit.html', {
+        'form': form
+    })
 
 class CustomPasswordResetView(PasswordResetView):
     template_name = 'accounts/password_reset.html'
