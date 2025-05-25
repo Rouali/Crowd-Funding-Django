@@ -1,10 +1,14 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from .models import Project, Tag, ProjectImage
+from .models import Project, Tag, ProjectImage ,Category
 from .forms import ProjectForm, ProjectImageFormSet
 from django.utils.text import slugify
 from django.contrib import messages
 from apps.comments.models import Comment
+
+from django.shortcuts import render, get_object_or_404
+
+
 @login_required
 def project_create(request):
     if request.method == 'POST':
@@ -145,3 +149,14 @@ def project_detail(request, project_id):
 def project_list(request):
     projects = Project.objects.all()
     return render(request, 'projects/project_list.html', {'projects': projects})
+
+
+
+
+def projects_by_category(request, category_id):
+    category = get_object_or_404(Category, id=category_id)
+    projects = Project.objects.filter(category=category)
+    return render(request, 'projects/projects_by_category.html', {
+        'category': category,
+        'projects': projects
+    })

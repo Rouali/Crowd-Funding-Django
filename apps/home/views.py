@@ -24,6 +24,7 @@ from django.db.models import Q
 from django.utils import timezone
 from apps.projects.models import Tag, Project , Category
 from django.db.models import Sum
+from django.shortcuts import render, get_object_or_404
 
 def index(request):
     return HttpResponse("Hello, this is the homepage.")
@@ -71,3 +72,6 @@ def all_projects(request):
     return render(request, 'home/all_projects.html', {
         'projects': projects
     })
+
+
+

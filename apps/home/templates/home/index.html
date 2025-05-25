@@ -186,10 +186,11 @@
   <div class="row">
     {% for cat in categories %}
       <div class="col-md-3 mb-3">
-        <a href="#" class="btn text-white w-100"
-           style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; letter-spacing: 0.5px;">
+        <a href="{% url 'projects:projects_by_category' cat.id %}" class="btn text-white w-100"
+          style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; letter-spacing: 0.5px;">
           {{ cat.name }}
         </a>
+
       </div>
     {% endfor %}
   </div>
