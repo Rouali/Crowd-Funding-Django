@@ -27,8 +27,12 @@ SECRET_KEY = 'django-insecure-5^t2$)alygojcam128pw(r&x#ike&td@5@_a&_y6ca(a0dx^_o
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG') == 'True'
 
+<<<<<<< HEAD
 # ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 ALLOWED_HOSTS = ['*']
+=======
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+>>>>>>> 7148f215ddcf82da65ff8a095754a9ae79f5aea4
 
 
 # Application definition
@@ -37,7 +41,10 @@ INSTALLED_APPS = [
     'apps.accounts',
     # 'apps.projects',
     'rest_framework',
+<<<<<<< HEAD
     'apps.projects.apps.ProjectsConfig', 
+=======
+>>>>>>> 7148f215ddcf82da65ff8a095754a9ae79f5aea4
     'apps.home',
     'apps.comments',
     'django.contrib.sites',

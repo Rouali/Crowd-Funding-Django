@@ -110,21 +110,18 @@ def project_cancel(request, project_id):
 def project_detail(request, project_id):
     project = get_object_or_404(Project, id=project_id)
     
-    # ✅ حذف تعليق (GET)
     if 'delete_id' in request.GET:
         comment = get_object_or_404(Comment, id=request.GET.get('delete_id'))
         if comment.user == request.user:
             comment.delete()
         return redirect('projects:project_detail', project.id)
 
-    # ✅ تبليغ عن تعليق (GET)
     if 'report_id' in request.GET:
         comment = get_object_or_404(Comment, id=request.GET.get('report_id'))
         comment.is_reported = True
         comment.save()
         return redirect('projects:project_detail', project.id)
 
-    # ✅ إضافة تعليق أو رد (POST)
     if request.method == 'POST' and 'content' in request.POST:
         content = request.POST.get('content')
         parent_id = request.POST.get('parent_id')
@@ -137,19 +134,17 @@ def project_detail(request, project_id):
         )
         return redirect('projects:project_detail', project.id)
 
-    # ✅ تحميل التعليقات الأساسية (parent=None)
     comments = Comment.objects.filter(project=project, parent=None).order_by('-created_at')
 
     return render(request, 'projects/project_detail.html', {
         'project': project,
-        'comments': comments  # 👈 تم تمرير التعليقات للـ template
+        'comments': comments
     })
 
 @login_required
 def project_list(request):
     projects = Project.objects.all()
     return render(request, 'projects/project_list.html', {'projects': projects})
-
 
 
 
