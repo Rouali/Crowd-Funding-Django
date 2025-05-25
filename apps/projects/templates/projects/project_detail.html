@@ -1,6 +1,32 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg text-white fixed-top" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+  <div class="container">
+    <a class="navbar-brand text-white" href="#"><img src="/media/projects/images/logo.png" style="width: 120px;" /></a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse justify-content-between" id="navbarNav">
+      <ul class="navbar-nav">
+        <li class="nav-item"><a class="nav-link text-white" href="/">Home</a></li>
+        <li class="nav-item"><a class="nav-link text-white" href="#latest">Latest</a></li>
+        <li class="nav-item"><a class="nav-link text-white" href="#featured">Featured</a></li>
+        <li class="nav-item"><a class="nav-link text-white" href="#categories">Categories</a></li>
+      </ul>
+
+      <!-- Search Form -->
+      <form method="GET" action="{% url 'search_projects' %}" class="d-flex" role="search">
+        <input class="form-control me-2" type="search" name="query" placeholder="Search" aria-label="Search" value="{{ query }}">
+        <button class="btn" type="submit" style="background-color: white; border: 2px solid #764ba2; color: #764ba2; letter-spacing: 0.5px;">Search</button>
+      </form>
+
+    </div>
+  </div>
+</nav>
+
 <div class="project-detail-container" style="background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%); min-height: 100vh; padding: 2rem 0;">
   <div class="container">
     <div class="row justify-content-center">
@@ -171,6 +197,9 @@ function toggleReplyForm(commentId) {
 </script>
 
 <style>
+body {
+  padding-top: 56px;
+}
 .progress-bar {
   transition: width 0.5s ease-in-out;
 }
