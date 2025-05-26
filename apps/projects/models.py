@@ -4,6 +4,11 @@ from django.conf import settings
 from django.utils import timezone 
 from django.db.models import Sum
 from django.utils.text import slugify
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.fields import GenericForeignKey
+
 
 User = get_user_model()
 
@@ -68,12 +73,36 @@ class Project(models.Model):
         return str(self.title)
 
 class Donation(models.Model):
-    project = models.ForeignKey(
-        Project, 
-        on_delete=models.CASCADE,
-        related_name='donations' 
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True
     )
+    project = models.ForeignKey(Project, related_name='donations', on_delete=models.CASCADE)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
+    donated_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user} donated {self.amount} to {self.project.title}"
+
+
+class Report(models.Model):
+    REPORT_CHOICES = [
+        ('spam', 'Spam or Scam'),
+        ('offensive', 'Offensive Content'),
+        ('other', 'Other'),
+    ]
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True
+    )
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey('content_type', 'object_id')
+    reason = models.CharField(max_length=50, choices=REPORT_CHOICES)
+    description = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_resolved = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"Report by {self.user} on {self.content_object} ({self.reason})"        
     
 class ProjectImage(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE ,related_name="images")
