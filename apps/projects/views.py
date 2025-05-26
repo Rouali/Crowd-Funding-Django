@@ -1,12 +1,12 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from .models import Project, Tag, ProjectImage ,Category, Report, Donation
+from .models import Project, Tag, ProjectImage ,Category, Report, Donation, Rating
 from .forms import ProjectForm, ProjectImageFormSet, DonationForm, ReportForm
 from django.utils.text import slugify
 from django.contrib import messages
 from apps.comments.models import Comment
 from django.contrib.contenttypes.models import ContentType
-from django.http import Http404
+from django.http import Http404, JsonResponse
 
 
 @login_required
@@ -145,10 +145,16 @@ def project_detail(request, project_id):
             object_id=project.id
         ).exists()
 
+    user_rating = 0
+    if request.user.is_authenticated:
+        user_rating_obj = Rating.objects.filter(project=project, user=request.user).first()
+        user_rating = user_rating_obj.value if user_rating_obj else 0
+
     return render(request, 'projects/project_detail.html', {
         'project': project,
         'comments': comments,
         'has_reported_project': has_reported_project,
+        'user_rating': user_rating,
     })
 
 @login_required
@@ -224,3 +230,22 @@ def report_content(request, model_name, object_id):
     else:
         form = ReportForm()
     return render(request, 'projects/report_form.html', {'form': form, 'content_object': content_object})
+
+@login_required
+def ajax_rate_project(request, project_id):
+    if request.method == 'POST':
+        value = int(request.POST.get('value'))
+        project = get_object_or_404(Project, id=project_id)
+        rating, created = Rating.objects.update_or_create(
+            project=project, user=request.user,
+            defaults={'value': value}
+        )
+        avg = project.average_rating
+        review_count = project.ratings.count()  
+        return JsonResponse({
+            'success': True, 
+            'average': avg, 
+            'your_rating': value,
+            'review_count': review_count  
+        })
+    return JsonResponse({'success': False}, status=400)
