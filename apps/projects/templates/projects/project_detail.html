@@ -78,6 +78,15 @@
               <p class="text-muted mb-4">
                 Raised: EGP {{ project.total_donations|floatformat:2|default:0 }} of EGP {{ project.total_target|floatformat:2 }}
               </p>
+              <div class="text-center">
+                {% if request.user.is_authenticated and project.user != request.user %}
+                  <a href="{% url 'projects:donate_to_project' project.id %}" 
+                    class="btn py-2 px-4 fw-medium"
+                    style="background: linear-gradient(135deg, #48bb78 0%, #38a169 100%); color: white; border-radius: 8px; border: none; letter-spacing: 0.5px;">
+                    <i class="bi bi-heart-fill me-2"></i>Donate Now
+                  </a>
+                {% endif %}
+              </div>
               
               {% if messages %}
               <div class="alert alert-dismissible fade show" role="alert">
@@ -101,7 +110,7 @@
                  style="background: #e2e8f0; color: #4a5568; border-radius: 8px;">
                 <i class="bi bi-arrow-left me-2"></i>Back to Projects
               </a>
-              
+
               <div class="btn-group">
                 {% if project.user == request.user and not project.is_cancelled %}
                 <a href="{% url 'projects:project_update' project.id %}" 
@@ -123,10 +132,23 @@
                     Cancel Project
                   </button>
                 </form>
+                {% else %}
+                  {% if request.user.is_authenticated and project.user != request.user %}
+                    {% if has_reported_project %}
+                      <button class="btn py-2 px-4 fw-medium" style="background: #e2e8f0; color: #a0aec0; border-radius: 8px; border: 1px solid #cbd5e1; cursor: not-allowed;" disabled>
+                        <i class="bi bi-flag-fill me-2"></i>Already Reported
+                      </button>
+                    {% else %}
+                      <a href="{% url 'projects:report_content' 'project' project.id %}" 
+                         class="btn py-2 px-4 fw-medium" 
+                         style="background: #f6ad55; color: white; border-radius: 8px;">
+                        <i class="bi bi-flag-fill me-2"></i>Report Project
+                      </a>
+                    {% endif %}
+                  {% endif %}
                 {% endif %}
               </div>
             </div>
-
             <!-- Comments Section -->
             <div class="comments-section mt-5">
               <h4 class="fw-semibold mb-3">Comments</h4>
@@ -153,7 +175,9 @@
                       {% if comment.user == request.user %}
                       <a href="?delete_id={{ comment.id }}" class="text-danger me-3" title="Delete">Delete</a>
                       {% endif %}
-                      <a href="?report_id={{ comment.id }}" class="text-warning" title="Report">Report</a>
+                      {% if request.user.is_authenticated and comment.user != request.user %}
+                      <a href="{% url 'projects:report_content' 'comment' comment.id %}" class="text-warning" title="Report">Report</a>
+                      {% endif %}
                     </div>
                   </div>
                   <p class="mt-2 mb-2">{{ comment.content }}</p>
@@ -184,7 +208,9 @@
                           {% if reply.user == request.user %}
                           <a href="?delete_id={{ reply.id }}" class="text-danger me-3" title="Delete">Delete</a>
                           {% endif %}
-                          <a href="?report_id={{ reply.id }}" class="text-warning" title="Report">Report</a>
+                          {% if request.user.is_authenticated and reply.user != request.user %}
+                          <a href="{% url 'projects:report_content' 'comment' reply.id %}" class="text-warning" title="Report">Report</a>
+                          {% endif %}
                         </div>
                       </div>
                       <p class="mt-2 mb-0">{{ reply.content }}</p>
