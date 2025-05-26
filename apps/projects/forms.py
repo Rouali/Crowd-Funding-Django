@@ -1,5 +1,5 @@
 from django import forms
-from .models import Project, ProjectImage
+from .models import Project, ProjectImage, Donation, Report
 
 class ProjectForm(forms.ModelForm):
     tags = forms.CharField(
@@ -35,3 +35,24 @@ ProjectImageFormSet = forms.inlineformset_factory(
     extra=3,
     widgets={'image': forms.ClearableFileInput(attrs={'class': 'file:bg-blue-50 file:border-0 file:rounded'})}
 )
+
+
+class DonationForm(forms.ModelForm):
+    class Meta:
+        model = Donation
+        fields = ['amount']
+
+    def clean_amount(self):
+        amount = self.cleaned_data.get('amount')
+        if amount is None or amount <= 0:
+            raise forms.ValidationError("Please enter a valid donation amount.")
+        return amount
+    
+
+class ReportForm(forms.ModelForm):
+    class Meta:
+        model = Report
+        fields = ['reason', 'description']
+        widgets = {
+            'description': forms.Textarea(attrs={'rows': 3}),
+        }
