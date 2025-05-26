@@ -13,8 +13,10 @@ urlpatterns = [
     path('<int:project_id>/cancel/', views.project_cancel, name='project_cancel'),
     path('<int:project_id>/', views.project_detail, name='project_detail'),
     path('category/<int:category_id>/', views.projects_by_category, name='projects_by_category'),
+    path('donate/<int:project_id>/', views.donate_to_project, name='donate_to_project'),
+    path('report/<str:model_name>/<int:object_id>/', views.report_content, name='report_content'),
+    path('<int:project_id>/ajax-rate/', views.ajax_rate_project, name='ajax_rate_project'),
 ]
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-

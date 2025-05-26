@@ -1,0 +1,300 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Donate to Project</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      padding-top: 56px;
+      background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+      min-height: 100vh;
+    }
+    
+    .carousel-item img {
+      height: 500px;
+      object-fit: cover;
+    }
+    
+    .card-img-top {
+      height: 200px;
+      object-fit: cover;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+                  0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+    }
+
+    .card {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .donate-form-container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 2rem 0;
+    }
+
+    .form-label {
+      font-weight: 600;
+      color: black;
+      margin-bottom: 8px;
+    }
+
+    .form-control {
+      border-radius: 8px;
+      border: 2px solid #e9ecef;
+      padding: 12px 16px;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .form-control:focus {
+      border-color: #764ba2;
+      box-shadow: 0 0 0 0.2rem rgba(118, 75, 162, 0.25);
+    }
+
+    .btn-donate {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none;
+      color: white;
+      padding: 12px 30px;
+      border-radius: 8px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .btn-donate:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+      color: white;
+    }
+
+    .project-info {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-radius: 16px;
+      padding: 30px;
+      margin-bottom: 30px;
+    }
+
+    .amount-buttons .btn {
+      border: 2px solid #764ba2;
+      color: #764ba2;
+      background: white;
+      margin: 5px;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .amount-buttons .btn:hover,
+    .amount-buttons .btn.active {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-color: #764ba2;
+    }
+
+    /* Navbar styling */
+    .navbar {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    }
+
+    .navbar-brand img {
+      width: 120px;
+    }
+
+    .nav-link {
+      color: white !important;
+    }
+
+    .navbar .btn {
+      background-color: white;
+      border: 2px solid #764ba2;
+      color: #764ba2;
+      letter-spacing: 0.5px;
+    }
+
+    /* Footer styling */
+    footer {
+      margin-top: auto;
+      padding: 20px 0;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      text-align: center;
+      color: white;
+    }
+
+    /* Main container to push footer down */
+    .main-wrapper {
+      min-height: calc(100vh - 56px);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .content-wrapper {
+      flex: 1;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg text-white fixed-top">
+    <div class="container">
+      <a class="navbar-brand text-white" href="#"><img src="/media/projects/images/logo.png" style="width: 120px;" /></a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      
+      <div class="collapse navbar-collapse justify-content-between" id="navbarNav">
+        <ul class="navbar-nav">
+          <li class="nav-item"><a class="nav-link text-white" href="/">Home</a></li>
+          <li class="nav-item"><a class="nav-link text-white" href="#latest">Latest</a></li>
+          <li class="nav-item"><a class="nav-link text-white" href="#featured">Featured</a></li>
+          <li class="nav-item"><a class="nav-link text-white" href="#categories">Categories</a></li>
+        </ul>
+
+        <!-- Search Form -->
+        <form method="GET" action="{% url 'search_projects' %}" class="d-flex" role="search">
+          <input class="form-control me-2" type="search" name="query" placeholder="Search" aria-label="Search" value="{{ query }}">
+          <button class="btn" type="submit">Search</button>
+        </form>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Wrapper -->
+  <div class="main-wrapper">
+    <!-- Content Wrapper -->
+    <div class="content-wrapper">
+      <!-- Main Content -->
+      <div class="container">
+        <div class="donate-form-container">
+          <!-- Project Info Header -->
+          <div class="project-info text-center">
+            <h2 class="mb-3">Support This Project</h2>
+            <h4 class="mb-0">{{ project.title }}</h4>
+            <p class="mt-0 opacity-75">{{ project.description|truncatechars:150 }}</p>
+          </div>
+
+          <!-- Donation Form -->
+          <div class="card shadow-lg border-0">
+            <div class="card-body p-4">
+              <h5 class="card-title text-center mb-4" style="color: #764ba2;">Make Your Donation</h5>
+              
+              <form method="post">
+                {% csrf_token %}
+                
+                <!-- Quick Amount Selection -->
+                <div class="mb-4">
+                  <label class="form-label">Quick Amount Selection</label>
+                  <div class="amount-buttons text-center">
+                    <button type="button" class="btn" onclick="setAmount(25)">$25</button>
+                    <button type="button" class="btn" onclick="setAmount(50)">$50</button>
+                    <button type="button" class="btn" onclick="setAmount(100)">$100</button>
+                    <button type="button" class="btn" onclick="setAmount(250)">$250</button>
+                    <button type="button" class="btn" onclick="setAmount(500)">$500</button>
+                  </div>
+                </div>
+
+                <!-- Form Fields -->
+                <div class="mb-3">
+                  {% for field in form %}
+                    <div class="mb-3">
+                      <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                      {{ field }}
+                      {% if field.help_text %}
+                        <div class="form-text">{{ field.help_text }}</div>
+                      {% endif %}
+                      {% if field.errors %}
+                        <div class="text-danger">
+                          {% for error in field.errors %}
+                            <small>{{ error }}</small>
+                          {% endfor %}
+                        </div>
+                      {% endif %}
+                    </div>
+                  {% endfor %}
+                </div>
+
+                <!-- Submit Button -->
+                <div class="text-center">
+                  <button type="submit" class="btn btn-donate btn-lg">
+                    <i class="fas fa-heart me-2"></i>
+                    Complete Donation
+                  </button>
+                </div>
+              </form>
+
+              <!-- Security Notice -->
+              <div class="text-center mt-4">
+                <small class="text-muted">
+                  <i class="fas fa-lock me-1"></i>
+                  Your donation is secure and encrypted
+                </small>
+              </div>
+            </div>
+          </div>
+
+          <!-- Back to Projects Link -->
+          <div class="text-center mt-4">
+            <a href="{% url 'projects:project_list' %}" class="btn py-2 px-4 fw-medium" style="background: #e2e8f0; color: #4a685c; border-radius: 8px;">
+              <i class="fas fa-arrow-left me-2"></i>
+              Back to Projects
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-white text-center">
+      <div class="container">
+        <p class="mb-0">&copy; 2025 FundMe. All rights reserved.</p>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Font Awesome for icons -->
+  <script src="https://kit.fontawesome.com/your-font-awesome-kit.js" crossorigin="anonymous"></script>
+  
+  <script>
+    function setAmount(amount) {
+      // Find the amount input field and set its value
+      const amountField = document.querySelector('input[name*="amount"], input[id*="amount"]');
+      if (amountField) {
+        amountField.value = amount;
+      }
+      
+      // Update active button state
+      document.querySelectorAll('.amount-buttons .btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      event.target.classList.add('active');
+    }
+
+    // Add form field classes for Bootstrap styling
+    document.addEventListener('DOMContentLoaded', function() {
+      // Add Bootstrap classes to form fields
+      const formFields = document.querySelectorAll('form input, form select, form textarea');
+      formFields.forEach(field => {
+        field.classList.add('form-control');
+      });
+      
+      // Style any checkbox or radio inputs differently
+      const checkboxes = document.querySelectorAll('input[type="checkbox"], input[type="radio"]');
+      checkboxes.forEach(checkbox => {
+        checkbox.classList.remove('form-control');
+        checkbox.classList.add('form-check-input');
+      });
+    });
+  </script>
+</body>
+</html>

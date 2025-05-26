@@ -1,0 +1,273 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Report Content</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      padding-top: 56px;
+      background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+      min-height: 100vh;
+    }
+    
+    .carousel-item img {
+      height: 500px;
+      object-fit: cover;
+    }
+    
+    .card-img-top {
+      height: 200px;
+      object-fit: cover;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+                  0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+    }
+
+    .card {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .report-form-container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 2rem 0;
+    }
+
+    .form-label {
+      font-weight: 600;
+      color: black;
+      margin-bottom: 8px;
+    }
+
+    .form-control, .form-select {
+      border-radius: 8px;
+      border: 2px solid #e9ecef;
+      padding: 12px 16px;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .form-control:focus, .form-select:focus {
+      border-color: #764ba2;
+      box-shadow: 0 0 0 0.2rem rgba(118, 75, 162, 0.25);
+    }
+
+    /* Style Django form fields */
+    .report-form p {
+      margin-bottom: 1.5rem;
+    }
+
+    .report-form label {
+      font-weight: 600;
+      color: #495057;
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+
+    .report-form input[type="text"], 
+    .report-form textarea, 
+    .report-form select {
+      width: 100%;
+      padding: 0.75rem;
+      border: 2px solid #e9ecef;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+      background-color: #fff;
+    }
+
+    .report-form input[type="text"]:focus, 
+    .report-form textarea:focus, 
+    .report-form select:focus {
+      outline: none;
+      border-color: #764ba2;
+      box-shadow: 0 0 0 0.2rem rgba(118, 75, 162, 0.25);
+    }
+
+    .report-form textarea {
+      resize: vertical;
+      min-height: 120px;
+    }
+
+    .btn-report {
+      background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+      border: none;
+      color: white;
+      padding: 12px 30px;
+      border-radius: 8px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .btn-report:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(220, 53, 69, 0.3);
+      color: white;
+    }
+
+    .alert-warning {
+      border-left: 4px solid #ffc107;
+    }
+
+    /* Navbar styling */
+    .navbar {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    }
+
+    .navbar-brand img {
+      width: 120px;
+    }
+
+    .nav-link {
+      color: white !important;
+    }
+
+    .navbar .btn {
+      background-color: white;
+      border: 2px solid #764ba2;
+      color: #764ba2;
+      letter-spacing: 0.5px;
+    }
+
+    /* Footer styling */
+    footer {
+      margin-top: auto;
+      padding: 20px 0;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      text-align: center;
+      color: white;
+    }
+
+    /* Main container to push footer down */
+    .main-wrapper {
+      min-height: calc(100vh - 56px);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .content-wrapper {
+      flex: 1;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg text-white fixed-top">
+    <div class="container">
+      <a class="navbar-brand text-white" href="#"><img src="/media/projects/images/logo.png" style="width: 120px;" /></a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      
+      <div class="collapse navbar-collapse justify-content-between" id="navbarNav">
+        <ul class="navbar-nav">
+          <li class="nav-item"><a class="nav-link text-white" href="/">Home</a></li>
+          <li class="nav-item"><a class="nav-link text-white" href="#latest">Latest</a></li>
+          <li class="nav-item"><a class="nav-link text-white" href="#featured">Featured</a></li>
+          <li class="nav-item"><a class="nav-link text-white" href="#categories">Categories</a></li>
+        </ul>
+
+        <!-- Search Form -->
+        <form method="GET" action="{% url 'search_projects' %}" class="d-flex" role="search">
+          <input class="form-control me-2" type="search" name="query" placeholder="Search" aria-label="Search" value="{{ query }}">
+          <button class="btn" type="submit">Search</button>
+        </form>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Wrapper -->
+  <div class="main-wrapper">
+    <!-- Content Wrapper -->
+    <div class="content-wrapper">
+      <!-- Main Content -->
+      <div class="container">
+        <div class="report-form-container">
+          <div class="card shadow-lg border-0 mb-4">
+            <div class="card-body p-4 p-md-5">
+              <h2 class="card-title text-center mb-4" style="color: #764ba2;">Report Content</h2>
+              
+              <!-- Content Being Reported -->
+              <div class="mb-4 p-3 bg-light rounded-3 border-start border-4 text-center" style="border-color: #764ba2 !important;">
+                <div class="mb-2">
+                  <i class="fas fa-exclamation-triangle me-2"></i>
+                  <strong>Content Being Reported</strong>
+                </div>
+                <div class="p-3 bg-white rounded-3 shadow-sm">
+                  <h5 class="mb-0 text-dark">{{ content_object }}</h5>
+                </div>
+              </div>
+
+              <!-- Report Form -->
+              <form method="post" class="report-form">
+                {% csrf_token %}
+                
+                <!-- Django Form Fields -->
+                <div class="mb-4">
+                  {{ form.as_p }}
+                </div>
+
+                <!-- Important Notice -->
+                <div class="alert alert-info mb-4">
+                  <small>
+                    <strong>Please note:</strong> False reports may result in account restrictions. 
+                    Only report content that violates our community guidelines.
+                  </small>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="text-center">
+                  <button type="submit" class="btn btn-report btn-lg">
+                    <i class="fas fa-flag me-2"></i>
+                    Submit Report
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- Help Section -->
+          <div class="card shadow-sm border-0">
+            <div class="card-body">
+              <h6 class="card-title">Need Help?</h6>
+              <p class="card-text small text-muted">
+                If you're experiencing harassment or need immediate assistance, please contact our support team directly at 
+                <a href="mailto:support@fundme.com">support@fundme.com</a>
+              </p>
+            </div>
+          </div>
+
+          <!-- Back Link -->
+          <div class="text-center mt-4">
+            <a href="javascript:history.back()" class="btn py-2 px-4 fw-medium" style="background: #e2e8f0; color: #4a5568; border-radius: 8px;">
+              <i class="fas fa-arrow-left me-2"></i>
+              Go Back
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-white text-center">
+      <div class="container">
+        <p class="mb-0">&copy; 2025 FundMe. All rights reserved.</p>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Font Awesome for icons -->
+  <script src="https://kit.fontawesome.com/your-font-awesome-kit.js" crossorigin="anonymous"></script>
+</body>
+</html>

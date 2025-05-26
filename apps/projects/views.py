@@ -1,12 +1,12 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from .models import Project, Tag, ProjectImage ,Category
-from .forms import ProjectForm, ProjectImageFormSet
+from .models import Project, Tag, ProjectImage ,Category, Report, Donation, Rating
+from .forms import ProjectForm, ProjectImageFormSet, DonationForm, ReportForm
 from django.utils.text import slugify
 from django.contrib import messages
 from apps.comments.models import Comment
-
-from django.shortcuts import render, get_object_or_404
+from django.contrib.contenttypes.models import ContentType
+from django.http import Http404, JsonResponse
 
 
 @login_required
@@ -136,9 +136,25 @@ def project_detail(request, project_id):
 
     comments = Comment.objects.filter(project=project, parent=None).order_by('-created_at')
 
+    has_reported_project = False
+    if request.user.is_authenticated:
+        content_type = ContentType.objects.get(app_label='projects', model='project')
+        has_reported_project = Report.objects.filter(
+            user=request.user,
+            content_type=content_type,
+            object_id=project.id
+        ).exists()
+
+    user_rating = 0
+    if request.user.is_authenticated:
+        user_rating_obj = Rating.objects.filter(project=project, user=request.user).first()
+        user_rating = user_rating_obj.value if user_rating_obj else 0
+
     return render(request, 'projects/project_detail.html', {
         'project': project,
-        'comments': comments
+        'comments': comments,
+        'has_reported_project': has_reported_project,
+        'user_rating': user_rating,
     })
 
 @login_required
@@ -155,3 +171,81 @@ def projects_by_category(request, category_id):
         'category': category,
         'projects': projects
     })
+
+@login_required
+def donate_to_project(request, project_id):
+    project = get_object_or_404(Project, id=project_id)
+    if request.method == 'POST':
+        form = DonationForm(request.POST)
+        if form.is_valid():
+            donation = form.save(commit=False)
+            donation.project = project
+            if request.user.is_authenticated:
+                donation.user = request.user
+            donation.save()
+            messages.success(request, "Thank you for your donation!")
+            return redirect('projects:project_detail', project_id=project.id)
+            # return redirect('project_detail', project_id=project.id)
+    else:
+        form = DonationForm()
+    return render(request, 'projects/donate_form.html', {'form': form, 'project': project})
+
+
+@login_required
+def report_content(request, model_name, object_id):
+    # Get app_label from the URL or as a parameter, or set it based on model_name
+    # Example: /api/report/projects/project/10/ or /api/report/comments/comment/5/
+    # If you want to keep your current URL, you can map model_name to app_label here:
+    model_app_map = {
+        'project': 'projects',
+        'comment': 'comments',
+        # add more if needed
+    }
+    app_label = model_app_map.get(model_name.lower())
+    if not app_label:
+        raise Http404("Unknown model for reporting.")
+
+    try:
+        content_type = ContentType.objects.get(app_label=app_label, model=model_name.lower())
+    except ContentType.DoesNotExist:
+        raise Http404("Content type not found.")
+    model = content_type.model_class()
+    content_object = get_object_or_404(model, pk=object_id)
+    if request.method == 'POST':
+        form = ReportForm(request.POST)
+        if form.is_valid():
+            report = form.save(commit=False)
+            report.content_object = content_object
+            if request.user.is_authenticated:
+                report.user = request.user
+            report.save()
+            messages.success(request, "Thank you for your report. Our team will review it soon.")
+            # Redirect to the related project detail page
+            if model_name == 'comment':
+                return redirect('projects:project_detail', project_id=content_object.project.id)
+            elif model_name == 'project':
+                return redirect('projects:project_detail', project_id=content_object.id)
+            else:
+                return redirect('projects:project_list')
+    else:
+        form = ReportForm()
+    return render(request, 'projects/report_form.html', {'form': form, 'content_object': content_object})
+
+@login_required
+def ajax_rate_project(request, project_id):
+    if request.method == 'POST':
+        value = int(request.POST.get('value'))
+        project = get_object_or_404(Project, id=project_id)
+        rating, created = Rating.objects.update_or_create(
+            project=project, user=request.user,
+            defaults={'value': value}
+        )
+        avg = project.average_rating
+        review_count = project.ratings.count()  
+        return JsonResponse({
+            'success': True, 
+            'average': avg, 
+            'your_rating': value,
+            'review_count': review_count  
+        })
+    return JsonResponse({'success': False}, status=400)

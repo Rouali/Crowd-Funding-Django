@@ -78,6 +78,44 @@
               <p class="text-muted mb-4">
                 Raised: EGP {{ project.total_donations|floatformat:2|default:0 }} of EGP {{ project.total_target|floatformat:2 }}
               </p>
+              <!-- Project's Ratings -->
+              <div class="rating-section mb-4">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                  <div class="overall-rating">
+                    <div class="rating-display d-flex align-items-center">
+                      <span class="rating-number">{{ project.average_rating|floatformat:1 }}</span>
+                      <div class="stars-display ms-2">
+                        {% for i in "12345" %}
+                          <span class="star-static {% if project.average_rating >= i|add:0 %}filled{% endif %}">★</span>
+                        {% endfor %}
+                      </div>
+                      <span class="rating-count ms-2">({{ project.ratings.count }} reviews)</span>
+                    </div>
+                  </div>
+                </div>
+              
+                {% if request.user.is_authenticated and project.user != request.user %}
+                <div class="user-rating-section">
+                  <p class="mb-2 text-muted">Rate this project:</p>
+                  <div id="star-rating" data-project="{{ project.id }}" data-user-rating="{{ user_rating|default:0 }}">
+                    {% for i in "12345" %}
+                      <span class="star-interactive {% if user_rating >= i|add:0 %}selected{% endif %}" data-value="{{ i }}">★</span>
+                    {% endfor %}
+                  </div>
+                  <small class="text-muted mt-1 d-block">Click to rate</small>
+                </div>
+                {% endif %}
+              </div>
+              <!-- Donate Button -->
+              <div class="text-center">
+                {% if request.user.is_authenticated and project.user != request.user %}
+                  <a href="{% url 'projects:donate_to_project' project.id %}" 
+                    class="btn py-2 px-4 fw-medium"
+                    style="background: linear-gradient(135deg, #48bb78 0%, #38a169 100%); color: white; border-radius: 8px; border: none; letter-spacing: 0.5px;">
+                    <i class="bi bi-heart-fill me-2"></i>Donate Now
+                  </a>
+                {% endif %}
+              </div>
               
               {% if messages %}
               <div class="alert alert-dismissible fade show" role="alert">
@@ -101,7 +139,7 @@
                  style="background: #e2e8f0; color: #4a5568; border-radius: 8px;">
                 <i class="bi bi-arrow-left me-2"></i>Back to Projects
               </a>
-              
+
               <div class="btn-group">
                 {% if project.user == request.user and not project.is_cancelled %}
                 <a href="{% url 'projects:project_update' project.id %}" 
@@ -123,10 +161,23 @@
                     Cancel Project
                   </button>
                 </form>
+                {% else %}
+                  {% if request.user.is_authenticated and project.user != request.user %}
+                    {% if has_reported_project %}
+                      <button class="btn py-2 px-4 fw-medium" style="background: #e2e8f0; color: #a0aec0; border-radius: 8px; border: 1px solid #cbd5e1; cursor: not-allowed;" disabled>
+                        <i class="bi bi-flag-fill me-2"></i>Already Reported
+                      </button>
+                    {% else %}
+                      <a href="{% url 'projects:report_content' 'project' project.id %}" 
+                         class="btn py-2 px-4 fw-medium" 
+                         style="background: #f6ad55; color: white; border-radius: 8px;">
+                        <i class="bi bi-flag-fill me-2"></i>Report Project
+                      </a>
+                    {% endif %}
+                  {% endif %}
                 {% endif %}
               </div>
             </div>
-
             <!-- Comments Section -->
             <div class="comments-section mt-5">
               <h4 class="fw-semibold mb-3">Comments</h4>
@@ -153,7 +204,9 @@
                       {% if comment.user == request.user %}
                       <a href="?delete_id={{ comment.id }}" class="text-danger me-3" title="Delete">Delete</a>
                       {% endif %}
-                      <a href="?report_id={{ comment.id }}" class="text-warning" title="Report">Report</a>
+                      {% if request.user.is_authenticated and comment.user != request.user %}
+                      <a href="{% url 'projects:report_content' 'comment' comment.id %}" class="text-warning" title="Report">Report</a>
+                      {% endif %}
                     </div>
                   </div>
                   <p class="mt-2 mb-2">{{ comment.content }}</p>
@@ -184,7 +237,9 @@
                           {% if reply.user == request.user %}
                           <a href="?delete_id={{ reply.id }}" class="text-danger me-3" title="Delete">Delete</a>
                           {% endif %}
-                          <a href="?report_id={{ reply.id }}" class="text-warning" title="Report">Report</a>
+                          {% if request.user.is_authenticated and reply.user != request.user %}
+                          <a href="{% url 'projects:report_content' 'comment' reply.id %}" class="text-warning" title="Report">Report</a>
+                          {% endif %}
                         </div>
                       </div>
                       <p class="mt-2 mb-0">{{ reply.content }}</p>
@@ -216,6 +271,85 @@ function toggleReplyForm(commentId) {
     form.style.display = 'none';
   }
 }
+// Star Ratings
+function initializeRating() {
+  const starRating = document.getElementById('star-rating');
+  if (!starRating) return;
+
+  const stars = starRating.querySelectorAll('.star-interactive');
+  let userRating = parseInt(starRating.getAttribute('data-user-rating')) || 0;
+  
+  // Properly initialize user's current rating on page load
+  function updateStarDisplay(rating, isHover = false) {
+    stars.forEach(function(star, index) {
+      const starValue = index + 1;
+      star.classList.remove('selected', 'hover-effect');
+      
+      if (starValue <= rating) {
+        star.classList.add(isHover ? 'hover-effect' : 'selected');
+      }
+    });
+  }
+  
+  // Initialize the display immediately
+  updateStarDisplay(userRating);
+  
+  stars.forEach(function(star, index) {
+    const value = parseInt(star.getAttribute('data-value'));
+    
+    star.addEventListener('mouseenter', function() {
+      updateStarDisplay(value, true);
+    });
+    
+    star.addEventListener('click', function() {
+      const projectId = starRating.getAttribute('data-project');
+      
+      fetch(`{% url 'projects:ajax_rate_project' project.id %}`, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': '{{ csrf_token }}',
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: 'value=' + value
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          // Update the overall rating display
+          document.querySelector('.rating-number').textContent = data.average;
+          updateOverallStars(data.average);
+          
+          // Update the user's rating
+          userRating = data.your_rating;
+          starRating.setAttribute('data-user-rating', userRating);
+          updateStarDisplay(userRating);
+        }
+      })
+      .catch(error => {
+        console.error('Rating error:', error);
+      });
+    });
+  });
+  
+  starRating.addEventListener('mouseleave', function() {
+    updateStarDisplay(userRating);
+  });
+  
+  function updateOverallStars(rating) {
+    const overallStars = document.querySelectorAll('.star-static');
+    overallStars.forEach(function(star, index) {
+      const starValue = index + 1;
+      star.classList.remove('filled');
+      
+      if (rating >= starValue) {
+        star.classList.add('filled');
+      }
+    });
+  }
+}
+
+// Initialize when page loads
+document.addEventListener('DOMContentLoaded', initializeRating);
 </script>
 
 <style>
@@ -235,5 +369,91 @@ body {
   font-size: 0.85rem;
   padding: 0.5rem 1rem;
 }
+/* Modern Rating Styles */
+.rating-section {
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid #e2e8f0;
+}
+
+.overall-rating .rating-number {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #2d3748;
+  line-height: 1;
+}
+
+.stars-display {
+  display: flex;
+  gap: 2px;
+}
+
+.star-static {
+  font-size: 1.2rem;
+  color: #e2e8f0;
+  transition: all 0.2s ease;
+}
+
+.star-static.filled {
+  color: #ffd700;
+  text-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
+}
+
+.rating-count {
+  color: #718096;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.user-rating-section {
+  border-top: 1px solid #e2e8f0;
+  padding-top: 1rem;
+  margin-top: 1rem;
+}
+
+#star-rating {
+  display: flex;
+  gap: 4px;
+  margin: 0.5rem 0;
+}
+
+.star-interactive {
+  font-size: 1.8rem;
+  color: #e2e8f0;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  transform-origin: center;
+  user-select: none;
+}
+
+.star-interactive:hover {
+  transform: scale(1.1);
+  color: #ffd700;
+  filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.4));
+}
+
+.star-interactive.selected {
+  color: #ffd700;
+  text-shadow: 0 0 12px rgba(255, 215, 0, 0.5);
+  animation: starPulse 0.6s ease-out;
+}
+
+.star-interactive.hover-effect {
+  color: #ffed4a;
+  transform: scale(1.05);
+}
+
+@keyframes starPulse {
+  0% { transform: scale(1); }
+  50% { 
+    transform: scale(1.2); 
+    filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.7));
+  }
+  100% { transform: scale(1); }
+}
 </style>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
 {% endblock %}
