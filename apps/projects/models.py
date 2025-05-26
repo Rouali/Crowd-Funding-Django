@@ -65,6 +65,11 @@ class Project(models.Model):
     @property
     def total_donations(self):
         return self.donations.aggregate(total=models.Sum('amount'))['total'] or 0
+    
+    @property
+    def average_rating(self):
+        avg = self.ratings.aggregate(models.Avg('value'))['value__avg']
+        return round(avg, 1) if avg else 0
 
     def can_cancel(self):
         return self.total_donations < 0.25 * self.total_target
@@ -103,6 +108,15 @@ class Report(models.Model):
 
     def __str__(self):
         return f"Report by {self.user} on {self.content_object} ({self.reason})"        
+    
+class Rating(models.Model):
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='ratings')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    value = models.PositiveSmallIntegerField(choices=[(i, i) for i in range(1, 6)])
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('project', 'user')
     
 class ProjectImage(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE ,related_name="images")
