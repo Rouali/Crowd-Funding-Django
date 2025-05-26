@@ -24,6 +24,23 @@
         <button class="btn" type="submit" style="background-color: white; border: 2px solid #764ba2; color: #764ba2; letter-spacing: 0.5px;">Search</button>
       </form>
 
+       <!-- profile -->
+      {% if user.is_authenticated %}
+        <div class="dropdown">
+          <a class="dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+           <img src="{% if user.profile_picture %}{{ user.profile_picture.url }}{% else %}/media/profile_pics/avatar.jpg{% endif %}" 
+          alt="Profile" width="40" height="40" class="rounded-circle">
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+            <li><a class="dropdown-item" href="{% url 'profile_view' %}">Profile</a></li>
+            <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
+          </ul>
+        </div>
+      {% else %}
+        <a href="{% url 'login' %}" class="btn btn-outline-primary">Login</a>
+      {% endif %}
+
+
     </div>
   </div>
 </nav>

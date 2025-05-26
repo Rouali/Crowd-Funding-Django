@@ -10,7 +10,7 @@ egypt_phone_regex = RegexValidator(
 class User(AbstractUser):
     email = models.EmailField(unique=True)
     mobile_phone = models.CharField(validators=[egypt_phone_regex], max_length=11, unique=True)
-    profile_picture = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
+    profile_picture = models.ImageField(upload_to='profile_pics/', blank=True, null=True , default='profile_pics/avatar.jpg')
 
     # Extra optional fields
     birthdate = models.DateField(null=True, blank=True)
